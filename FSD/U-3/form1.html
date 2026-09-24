@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submitted Student Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        .data-container {
+            max-width: 500px;
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+        }
+        .data-item {
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        .label {
+            font-weight: bold;
+            display: inline-block;
+            width: 160px;
+            color: #555;
+        }
+        .value {
+            color: #000;
+        }
+        .no-data {
+            color: #cc0000;
+            font-style: italic;
+        }
+        .color-preview {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 1px solid #000;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="data-container">
+    <h2>Submitted Student Data</h2>
+    <div id="output">
+        <!-- JavaScript will populate data here -->
+    </div>
+</div>
+
+<script>
+    // Get the query string parameters from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const outputDiv = document.getElementById('output');
+
+    // Define the form fields and their user-friendly labels
+    const fields = [
+        { name: 'username', label: 'Username:' },
+        { name: 'password', label: 'Password:' },
+        { name: 'email', label: 'Email:' },
+        { name: 'phone', label: 'Phone:' },
+        { name: 'gender', label: 'Gender:' },
+        { name: 'hobbies', label: 'Hobbies:', isMultiple: true },
+        { name: 'dob', label: 'Date of Birth:' },
+        { name: 'age', label: 'Age:' },
+        { name: 'color', label: 'Favorite Color:', isColor: true },
+        { name: 'browser', label: 'Preferred Browser:' },
+        { name: 'branch', label: 'Selected Branch:' },
+        { name: 'message', label: 'Your Message:' },
+        { name: 'satisfaction', label: 'Satisfaction Level:' }
+    ];
+
+    let hasData = false;
+    let htmlContent = '';
+
+    fields.forEach(field => {
+        let value;
+        
+        if (field.isMultiple) {
+            // Checkboxes can have multiple values
+            const values = urlParams.getAll(field.name);
+            value = values.length > 0 ? values.join(', ') : null;
+        } else {
+            value = urlParams.get(field.name);
+        }
+
+        // Only display if the field has a value sent in the URL
+        if (value !== null && value !== '') {
+            hasData = true;
+            
+            // Handle color preview visual
+            let colorVisual = '';
+            if (field.isColor) {
+                colorVisual = `<span class="color-preview" style="background-color: ${decodeURIComponent(value)}"></span>`;
+            }
+
+            htmlContent += `
+                <div class="data-item">
+                    <span class="label">${field.label}</span>
+                    <span class="value">${escapeHtml(value)}</span>
+                    ${colorVisual}
+                </div>
+            `;
+        }
+    });
+
+    // Fallback if the file is opened directly without submitting the form
+    if (!hasData) {
+        htmlContent = '<p class="no-data">No data found. Please submit the registration form first using the GET method.</p>';
+    }
+
+    outputDiv.innerHTML = htmlContent;
+
+    // Simple helper function to prevent XSS exploits
+    function escapeHtml(string) {
+        return String(string).replace(/[&<>"']/g, function (s) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[s];
+        });
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form>
+        <fieldset><legend>Customer Details</legend>
+        <table rules="none">
+            <tr>
+                <th>Name:</th>
+                <td><input type="text" name="Name" placeholder="Enter Name"></td>
+            </tr>
+            <tr>
+                <th>Number:</th>
+                <td><input type="tel" name="Number" placeholder="Enter Number"></td>
+            </tr>
+            <tr>
+                <th>Email:</th>
+                <td><input type="email" name="Email" placeholder="Enter Email"></td>
+            </tr>
+            <tr>
+                <th>Pizza Name:</th>
+                <td><div class="radio-check-group">
+                    <input type="checkbox" name="pizza" value="Margherita">
+                    <label for="music" style="width: auto; margin-right: 10px;">Margherita</label><br>
+                    <input type="checkbox" name="pizza" value="7cheese">
+                    <label for="sports" style="width: auto;">7 Cheese</label>
+                </div></td>
+            </tr>
+            <tr>
+                <th><label for="branch">Select Branch:</label></th>
+                <td><select id="branch" name="branch">
+                    <option value="" selected disabled>--List of Area--</option>
+                    <option value="cse">Sarkhej</option>
+                    <option value="ece">Sanand</option>
+                    <option value="me">Gota</option>
+                </select></td>
+            </tr>
+            <tr>
+                <th>Order Date:</th>
+                <td><input type="date" name="orderdate"></td>
+            </tr>
+            <tr>
+                <th>Comment:</th>
+                <td><textarea name="Comment"></textarea></td>
+            </tr>
+
+        </table></fieldset>
+
+        <fieldset><legend>Scale Ordered Pizza</legend>
+        
+            <table rules="all" border="0">
+                <tr>
+                    <th>Scale</th>
+                    <th>Good</th>
+                    <th>Avg.</th>
+                    <th>Bad</th>
+                </tr>
+                <tr>
+                    <th>Quality</th>
+                    <th>Good</th>
+                    <th>Avg.</th>
+                    <th>Bad</th>
+                </tr>
+                <tr>
+                    <th>Quantity</th>
+                    <th>Good</th>
+                    <th>Avg.</th>
+                    <th>Bad</th>
+                </tr>
+                <tr>
+                    <th>Freshness</th>
+                    <th>Good</th>
+                    <th>Avg.</th>
+                    <th>Bad</th>
+                </tr>
+                <tr>
+                    <th>Overall Rating</th>
+                    <td colspan="3">
+                        <input type="range">
+                    </td>
+                </tr>
+            </table>
+        
+        </fieldset>
+
+    </form>
+</body>
+</html>
