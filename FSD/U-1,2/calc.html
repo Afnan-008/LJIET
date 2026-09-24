@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator with Functionality</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        .calculator {
+            background-color: #1c1c1c;
+            width: 320px;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .display {
+            width: 100%;
+            height: 70px;
+            background-color: #1c1c1c;
+            border: none;
+            color: #ffffff;
+            text-align: right;
+            font-size: 2.5rem;
+            padding: 10px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:active {
+            opacity: 0.7;
+        }
+
+        /* Number buttons */
+        .btn-number {
+            background-color: #333333;
+            color: #ffffff;
+        }
+
+        /* Operator buttons (+, -, *, /, =) */
+        .btn-operator {
+            background-color: #ff9f0a;
+            color: #ffffff;
+        }
+
+        /* Top row function buttons (C, +/-, %) */
+        .btn-function {
+            background-color: #a5a5a5;
+            color: #000000;
+        }
+
+        /* Zero button spans two columns */
+        .btn-zero {
+            grid-column: span 2;
+            border-radius: 30px;
+            text-align: left;
+            padding-left: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <!-- Display Screen -->
+        <input type="text" class="display" id="display" value="0" readonly>
+        
+        <!-- Button Grid -->
+        <div class="buttons">
+            <button class="btn-function" onclick="clearDisplay()">C</button>
+            <button class="btn-function" onclick="toggleSign()">+/-</button>
+            <button class="btn-function" onclick="appendOperator('%')">%</button>
+            <button class="btn-operator" onclick="appendOperator('/')">÷</button>
+
+            <button class="btn-number" onclick="appendNumber('7')">7</button>
+            <button class="btn-number" onclick="appendNumber('8')">8</button>
+            <button class="btn-number" onclick="appendNumber('9')">9</button>
+            <button class="btn-operator" onclick="appendOperator('*')">×</button>
+
+            <button class="btn-number" onclick="appendNumber('4')">4</button>
+            <button class="btn-number" onclick="appendNumber('5')">5</button>
+            <button class="btn-number" onclick="appendNumber('6')">6</button>
+            <button class="btn-operator" onclick="appendOperator('-')">−</button>
+
+            <button class="btn-number" onclick="appendNumber('1')">1</button>
+            <button class="btn-number" onclick="appendNumber('2')">2</button>
+            <button class="btn-number" onclick="appendNumber('3')">3</button>
+            <button class="btn-operator" onclick="appendOperator('+')">+</button>
+
+            <button class="btn-number btn-zero" onclick="appendNumber('0')">0</button>
+            <button class="btn-number" onclick="appendNumber('.')">.</button>
+            <button class="btn-operator" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        let resetDisplay = false;
+
+        function appendNumber(number) {
+            // Prevent multiple decimals in a single number string
+            if (number === '.' && display.value.split(/[\+\-\*\/%]/).pop().includes('.')) {
+                return;
+            }
+            
+            // Overwrite initial 0 or reset display after an evaluation
+            if (display.value === '0' || resetDisplay) {
+                if (number === '.') {
+                    display.value = '0.';
+                } else {
+                    display.value = number;
+                }
+                resetDisplay = false;
+            } else {
+                display.value += number;
+            }
+        }
+
+        function appendOperator(operator) {
+            resetDisplay = false;
+            const lastChar = display.value.slice(-1);
+            
+            // Prevent entering an operator first (except minus for negative numbers)
+            if (display.value === '0' && (operator !== '-')) {
+                return;
+            }
+
+            // Replace the last operator if another one is pressed sequentially
+            if (['+', '-', '*', '/', '%'].includes(lastChar)) {
+                display.value = display.value.slice(0, -1) + operator;
+            } else {
+                display.value += operator;
+            }
+        }
+
+        function clearDisplay() {
+            display.value = '0';
+            resetDisplay = false;
+        }
+
+        function toggleSign() {
+            if (display.value !== '0' && display.value !== 'Error') {
+                if (display.value.startsWith('-')) {
+                    display.value = display.value.slice(1);
+                } else {
+                    display.value = '-' + display.value;
+                }
+            }
+        }
+
+        function calculate() {
+            try {
+                // Safeguard against invalid hanging operators at the end
+                let expression = display.value;
+                const lastChar = expression.slice(-1);
+                if (['+', '-', '*', '/'].includes(lastChar)) {
+                    expression = expression.slice(0, -1);
+                }
+
+                // Handle percentage conversion securely (e.g., 50% turns to 50/100)
+                expression = expression.replace(/%/g, '/100');
+
+                // Evaluate mathematically using Function constructor (safer alternative to eval)
+                let result = new Function(`return ${expression}`)();
+                
+                // Format the result to prevent long floating-point tailing decimals (e.g. 0.1 + 0.2)
+                if (result !== undefined) {
+                    display.value = Number(result.toFixed(8)).toString();
+                    resetDisplay = true;
+                }
+            } catch (error) {
+                display.value = 'Error';
+                resetDisplay = true;
+            }
+        }
+    </script>
+</body>
+</html>

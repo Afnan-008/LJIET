@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive HTML Lists Demonstration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #16a085;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #2980b9;
+        }
+        section {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .css-marker li::marker {
+            color: #e74c3c;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>HTML Lists: Complete Feature Demonstration</h1>
+
+    <!-- 1. UNORDERED LISTS -->
+    <section>
+        <h2>1. Unordered Lists (&lt;ul&gt;)</h2>
+        <p>Used for items where the order does not matter. The <code>type</code> attribute is deprecated in HTML5, so modern styling relies on the CSS <code>list-style-type</code> property shown below.</p>
+        
+        <h3>Default (Disc)</h3>
+        <ul>
+            <li>HTML5</li>
+            <li>CSS3</li>
+            <li>JavaScript</li>
+        </ul>
+
+        <h3>Circle Style</h3>
+        <ul style="list-style-type: circle;">
+            <li>Python</li>
+            <li>Java</li>
+            <li>C++</li>
+        </ul>
+
+        <h3>Square Style</h3>
+        <ul style="list-style-type: square;">
+            <li>SQL</li>
+            <li>NoSQL</li>
+            <li>GraphQL</li>
+        </ul>
+
+        <h3>No Marker (None)</h3>
+        <ul style="list-style-type: none; padding-left: 0;">
+            <li>Git</li>
+            <li>Docker</li>
+            <li>Kubernetes</li>
+        </ul>
+    </section>
+
+    <!-- 2. ORDERED LISTS -->
+    <section>
+        <h2>2. Ordered Lists (&lt;ol&gt;)</h2>
+        <p>Used for items that follow a specific sequence. These utilize native HTML attributes like <code>type</code>, <code>start</code>, and <code>reversed</code>.</p>
+        
+        <h3>Default Numbers (type="1")</h3>
+        <ol type="1">
+            <li>Wake up</li>
+            <li>Brush teeth</li>
+            <li>Eat breakfast</li>
+        </ol>
+
+        <h3>Uppercase Letters (type="A") with Custom Start</h3>
+        <ol type="A" start="3">
+            <li>Review pull request (Starts at C)</li>
+            <li>Merge branch</li>
+            <li>Deploy to production</li>
+        </ol>
+
+        <h3>Lowercase Letters (type="a")</h3>
+        <ol type="a">
+            <li>Analyze requirements</li>
+            <li>Design architecture</li>
+        </ol>
+
+        <h3>Uppercase Roman Numerals (type="I")</h3>
+        <ol type="I">
+            <li>Introduction</li>
+            <li>Methodology</li>
+            <li>Conclusion</li>
+        </ol>
+
+        <h3>Lowercase Roman Numerals (type="i") in Reverse</h3>
+        <ol type="i" reversed>
+            <li>Final Phase</li>
+            <li>Testing Phase</li>
+            <li>Development Phase</li>
+        </ol>
+
+        <h3>Custom Value Attribute on List Items</h3>
+        <ol>
+            <li value="10">Top priority item</li>
+            <li value="20">Medium priority item</li>
+            <li value="30">Low priority item</li>
+        </ol>
+    </section>
+
+    <!-- 3. DESCRIPTION LISTS -->
+    <section>
+        <h2>3. Description Lists (&lt;dl&gt;)</h2>
+        <p>Used for pairs of terms and descriptions (formerly known as definition lists).</p>
+        <dl>
+            <dt><strong>HTML</strong></dt>
+            <dd>HyperText Markup Language, the standard structure of a webpage.</dd>
+            
+            <dt><strong>CSS</strong></dt>
+            <dd>Cascading Style Sheets, used to style the visual presentation of a document.</dd>
+            
+            <dt><strong>HTTP & HTTPS</strong></dt>
+            <dd>Protocols used to transfer data across the web.</dd>
+            <dd>HTTPS provides an encrypted, secure connection wrapper over HTTP.</dd>
+        </dl>
+    </section>
+
+    <!-- 4. NESTED LISTS -->
+    <section>
+        <h2>4. Nested Lists (Correct Structural Semantics)</h2>
+        <p>Note: The nested list must be placed <em>inside</em> a <code>&lt;li&gt;</code> tag to maintain valid HTML markup validation, rather than directly under a <code>&lt;ul&gt;</code> or <code>&lt;ol&gt;</code> parent.</p>
+        <ul>
+            <li>Front-End Web Development
+                <ol type="a">
+                    <li>HTML Structure</li>
+                    <li>CSS Presentational Styles
+                        <ul style="list-style-type: square;">
+                            <li>Flexbox</li>
+                            <li>Grid Layouts</li>
+                        </ul>
+                    </li>
+                    <li>JavaScript Functionality</li>
+                </ol>
+            </li>
+            <li>Back-End Web Development
+                <ol type="a">
+                    <li>Server Setup</li>
+                    <li>Database Management</li>
+                </ol>
+            </li>
+        </ul>
+    </section>
+
+    <!-- 5. ADVANCED CSS CUSTOMIZATION -->
+    <section>
+        <h2>5. Advanced Styling Features</h2>
+        
+        <h3>Custom Emojis via CSS String Markers</h3>
+        <ul style="list-style-type: '🚀 ';">
+            <li>Launch alpha build</li>
+            <li>Gather user telemetry</li>
+            <li>Scale infrastructure</li>
+        </ul>
+
+        <h3>Targeting List Markers directly via CSS (::marker)</h3>
+        <ol class="css-marker">
+            <li>Custom colored numbers</li>
+            <li>Styled via modern browser pseudo-elements</li>
+        </ol>
+    </section>
+
+</body>
+</html>
