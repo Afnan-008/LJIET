@@ -1,0 +1,40 @@
+body { 
+  /* Sets your external image link as the background */
+  background-image: url("https://wallpapercave.com/wp/wp11165928.jpg"); 
+  
+  /* Centers the background image and prevents tiling */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover; /* Forces the image to stretch and cover the full screen */
+  background-attachment: fixed;
+  /* Essential layout properties to make align-items work */
+  display: flex; 
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; 
+  
+  /* Gives the body full height so content centers perfectly on the screen */
+  min-height: 100vh; 
+  margin: 0;
+}
+
+#head{
+    color: brown;
+}
+#para{
+    color: dimgray;
+}
+#para2{
+    color: gold;
+}
+.spidy{
+    align-items: center;
+    color: deepskyblue;
+    font-size: large;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+*{
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
