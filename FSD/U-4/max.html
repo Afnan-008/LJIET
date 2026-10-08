@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Font-CSS</title>
+    <style>
+        body {
+            /* Initial fallback image */
+            background-image: url("https://wallpapercave.com/wp/wp16136103.jpg"); 
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            /* Smooth transition effect when the image changes */
+            transition: background-image 0.1s ease-in-out; 
+        }
+        p{
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            font-size: 20px;
+            letter-spacing: 1px;
+            word-spacing: 2px;
+            text-shadow: 3px 5px 7px rgb(29, 95, 182);
+            color: rgba(218, 79, 160, 0.637);
+        }
+        h1{
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            text-align: left;
+            color: #dbc6c6;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // 1. Add your image URLs inside this array
+        const images = [
+            "https://wallpapercave.com/wp/wp14858982.webp",
+            "https://wallpapercave.com/wp/wp9839775.jpg",
+            "https://wallpapercave.com/wp/wp13982958.png",
+            "https://wallpapercave.com/wp/wp14666558.webp"
+        ];
+
+        let currentIndex = 0;
+
+        function changeBackground() {
+            // Move to the next image index, looping back to 0 at the end
+            currentIndex = (currentIndex + 1) % images.length;
+            
+            // Apply the new image to the body background
+            document.body.style.backgroundImage = `url('${images[currentIndex]}')`;
+        }
+
+        // 2. Change the image every 5000 milliseconds (5 seconds)
+        setInterval(changeBackground, 500);
+    </script>
+    <h1>&nbsp;&nbsp;&nbsp;&nbsp;MAX VERSTAPPEN</h1>
+    
+    
+</body>
+</html>

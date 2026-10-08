@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe: Human vs AI</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #121214;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+            font-size: 2.5rem;
+            color: #00adb5;
+        }
+
+        .assignment-info {
+            font-size: 0.95rem;
+            color: #aaaaaa;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            height: 35px;
+            font-weight: 500;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            background-color: #232931;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .cell {
+            background-color: #393e46;
+            border: none;
+            border-radius: 5px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .cell:hover:not(:disabled) {
+            background-color: #4e545c;
+        }
+
+        .cell:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .cell:disabled {
+            cursor: default;
+        }
+
+        .cell.X {
+            color: #00adb5;
+        }
+
+        .cell.O {
+            color: #ff5722;
+        }
+
+        .reset-btn {
+            margin-top: 25px;
+            padding: 10px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            background-color: #00adb5;
+            color: #eeeeee;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .reset-btn:hover {
+            background-color: #007a80;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tic-Tac-Toe</h1>
+    <div class="assignment-info" id="assignmentInfo">Assigning signs...</div>
+    <div class="status" id="statusPanel">Setting up game...</div>
+
+    <div class="board" id="gameBoard">
+        <button class="cell" data-index="0" aria-label="Square 1"></button>
+        <button class="cell" data-index="1" aria-label="Square 2"></button>
+        <button class="cell" data-index="2" aria-label="Square 3"></button>
+        <button class="cell" data-index="3" aria-label="Square 4"></button>
+        <button class="cell" data-index="4" aria-label="Square 5"></button>
+        <button class="cell" data-index="5" aria-label="Square 6"></button>
+        <button class="cell" data-index="6" aria-label="Square 7"></button>
+        <button class="cell" data-index="7" aria-label="Square 8"></button>
+        <button class="cell" data-index="8" aria-label="Square 9"></button>
+    </div>
+
+    <button class="reset-btn" id="resetBtn">Play Again</button>
+
+    <script>
+        const cells = document.querySelectorAll('.cell');
+        const statusPanel = document.getElementById('statusPanel');
+        const assignmentInfo = document.getElementById('assignmentInfo');
+        const resetBtn = document.getElementById('resetBtn');
+
+        let currentPlayer = 'X';
+        let playerSign = 'X';
+        let aiSign = 'O';
+        let gameState = Array(9).fill('');
+        let isGameActive = true;
+        let aiTimer;
+
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        function initGame() {
+            clearTimeout(aiTimer);
+
+            gameState = Array(9).fill('');
+            isGameActive = true;
+            currentPlayer = 'X';
+
+            // Randomly assign X or O to the human player.
+            playerSign = Math.random() < 0.5 ? 'X' : 'O';
+            aiSign = playerSign === 'X' ? 'O' : 'X';
+
+            assignmentInfo.textContent =
+                `You: ${playerSign} | Computer: ${aiSign}`;
+
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('X', 'O');
+                cell.disabled = false;
+            });
+
+            updateStatusText();
+
+            // X always starts. If X belongs to the computer, it moves first.
+            if (aiSign === 'X') {
+                aiTimer = setTimeout(makeComputerMove, 400);
+            }
+        }
+
+        function updateStatusText() {
+            if (!isGameActive) return;
+
+            statusPanel.textContent = currentPlayer === playerSign
+                ? `Your Turn (${playerSign})`
+                : `Computer is thinking... (${aiSign})`;
+        }
+
+        function handleCellClick(event) {
+            const cell = event.currentTarget;
+            const index = Number(cell.dataset.index);
+
+            if (
+                !isGameActive ||
+                currentPlayer !== playerSign ||
+                gameState[index] !== ''
+            ) {
+                return;
+            }
+
+            executeMove(cell, index);
+        }
+
+        function executeMove(cell, index) {
+            gameState[index] = currentPlayer;
+            cell.textContent = currentPlayer;
+            cell.classList.add(currentPlayer);
+            cell.disabled = true;
+
+            if (validateResult()) return;
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            updateStatusText();
+
+            if (currentPlayer === aiSign && isGameActive) {
+                aiTimer = setTimeout(makeComputerMove, 500);
+            }
+        }
+
+        function makeComputerMove() {
+            if (!isGameActive || currentPlayer !== aiSign) return;
+
+            const emptyIndices = gameState
+                .map((value, index) => value === '' ? index : -1)
+                .filter(index => index !== -1);
+
+            if (emptyIndices.length === 0) return;
+
+            let targetIndex = -1;
+
+            // The computer uses a strategic move only 30% of the time.
+            if (Math.random() < 0.3) {
+                // Try to win, then try to block the player.
+                targetIndex = findStrategicIndex(aiSign);
+
+                if (targetIndex === -1) {
+                    targetIndex = findStrategicIndex(playerSign);
+                }
+            }
+
+            // Otherwise, choose a random open square.
+            if (targetIndex === -1) {
+                targetIndex = emptyIndices[
+                    Math.floor(Math.random() * emptyIndices.length)
+                ];
+            }
+
+            executeMove(cells[targetIndex], targetIndex);
+        }
+
+        function findStrategicIndex(sign) {
+            for (const [a, b, c] of winningConditions) {
+                if (
+                    gameState[a] === sign &&
+                    gameState[b] === sign &&
+                    gameState[c] === ''
+                ) return c;
+
+                if (
+                    gameState[a] === sign &&
+                    gameState[c] === sign &&
+                    gameState[b] === ''
+                ) return b;
+
+                if (
+                    gameState[b] === sign &&
+                    gameState[c] === sign &&
+                    gameState[a] === ''
+                ) return a;
+            }
+
+            return -1;
+        }
+
+        function validateResult() {
+            const roundWon = winningConditions.some(([a, b, c]) =>
+                gameState[a] !== '' &&
+                gameState[a] === gameState[b] &&
+                gameState[b] === gameState[c]
+            );
+
+            if (roundWon) {
+                statusPanel.textContent = currentPlayer === playerSign
+                    ? 'You Win! 🎉'
+                    : 'Computer Wins! 🤖';
+
+                endGame();
+                return true;
+            }
+
+            if (!gameState.includes('')) {
+                statusPanel.textContent = "It's a Draw! 🤝";
+                endGame();
+                return true;
+            }
+
+            return false;
+        }
+
+        function endGame() {
+            isGameActive = false;
+            cells.forEach(cell => {
+                cell.disabled = true;
+            });
+        }
+
+        cells.forEach(cell => {
+            cell.addEventListener('click', handleCellClick);
+        });
+
+        resetBtn.addEventListener('click', initGame);
+
+        initGame();
+    </script>
+</body>
+</html>
