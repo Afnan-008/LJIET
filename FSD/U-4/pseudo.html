@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pseudo Class</title>
+    <style>
+        a:link{color: brown;}
+        a:visited{color: black;}
+        a:hover{color: rgb(20, 120, 138); font-size: 30px;}
+        
+        button{
+            height: 125px;
+            width: 200px;
+            background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJvUGSbCUz-iZ8GrRwd0ppHGdMux_f4KV9WszESctNzA&s=10");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-color: #D4D6D8;
+        }
+        button:hover{
+            background-color: blueviolet;
+        }
+        ul li:not(.special){
+            color: green;
+        }
+        ul li:nth-child(1){
+            color: blue;
+            background-color: beige;
+        }
+        p::first-line{color: blue;}
+        p::first-letter{font-style: italic;}
+        p::after{content: "💩💩";   font-size: 20px;}
+        ul li::selection{background-color: yellow;}
+        
+    </style>
+</head>
+<body>
+    <p><b><a href="https://www.redbull.com/in-en" target="_blank">Red Bull</a></b></p>
+    <button href="https://www.redbull.com/in-en" target="_blank"></button>
+
+
+    <ul>
+        <li>Max Verstappen</li>
+        <li>Charles Leclerc</li>
+        <li class="special">Lewis Hamilton</li>
+    </ul>
+    <p>
+        Honeybees play a vital role in our global food supply.<br> These small insects are essential pollinators for one-third of the crops we eat every day, including fruits like apples, vegetables like broccoli, and nuts like almonds. As they travel from flower to flower gathering nectar,<br> pollen sticks to their bodies and rubs off onto other plants, allowing those crops to reproduce. Without this natural teamwork, grocery store shelves would lose a massive variety of fresh produce. Ultimately,<br> protecting bee populations is not just about saving an insect, but about safeguarding human agriculture and food security worldwide.
+    </p>
+
+</body>
+</html>
