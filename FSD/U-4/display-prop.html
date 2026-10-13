@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display property</title>
+    <style>
+        .box{
+            background-color: beige;
+            border: 2px solid navy;
+            padding: 10px;
+            margin: 5px;
+            text-align: center;
+        }
+        .inline div{
+            display: inline;
+            background-color: yellow;
+            border: 1px solid orange;
+            padding: 5px;
+        }
+        .block span{
+            display: block;
+            background-color: brown;
+            border: 1.5px solid blue;
+            padding: 10px;
+            margin-bottom: 5px;
+            height: 25px;
+            width: 1000px;
+        }
+        .inline-block div{
+            display: inline-block;
+            background-color: lightgreen;
+            border: 2px solid red;
+            width: 120px;
+            height: 60px;
+            margin: 5px;
+            align-content: center;
+        }
+        .none p{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    
+    <h1>CSS Display-Property</h1>
+    <h3>Display Inline</h3>
+    <div class="inline box">
+        <div>Inline 1.</div>
+        <div>Inline 2.</div>
+        <div>Inline 3.</div>
+        <div>Inline 4.</div>
+    </div>
+    <div class="block box">
+        <span>Block-1</span>
+        <span>Block-2</span>
+        <span>Block-3</span>
+        <span>Block-4</span>
+        <span>Block-5</span>
+    </div>
+    <div class="inline-block box">
+        <div>Box-1</div>
+        <div>Box-2</div>
+        <div>Box-3</div>
+        <div>Box-4</div>
+    </div>
+    <div class="none">
+        <h3>Display: none</h3>
+        <div><p>This is hidden due to Display none property.</p></div>
+    </div>
+</body>
+</html>
