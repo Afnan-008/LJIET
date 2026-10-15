@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS-Positioning Properties</title>
+    <link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw4u-4b0MVyH8EP5_PwlwbGwP6Yr_vjsHW9c3m7JlIWJAEBgblg6Y_x2s&s=10">
+
+    <style>
+        .container{
+            margin-top: 50px;
+            margin-left: 20px;
+            height: 800px;
+            border: 2px solid red;
+            position: relative;
+        }
+        .container1{
+            margin-top: 30px;
+            margin-left: 20px;
+            height: 1000px;
+            border: 2px dashed rgba(137, 43, 226, 0.466);
+        }
+        .test{
+            margin-left: 20px;
+            height: 200px;
+            width: 200px;
+            text-align: center;
+            background-color: blue;
+        }
+        #test1{
+            background-color: aqua;
+            position: static;
+        }
+        #test2{
+            background-color: bisque;
+            position: relative;
+            top: 50px;
+            left: 40px;
+            z-index: 1;
+        }
+        #test3{
+            background-color: yellow;
+            position: absolute;
+            top: 100px;
+            right: 0px;
+        }
+        #test4{
+            background-color: rgba(222, 184, 135, 0.356);
+            position: fixed;
+            top: 60px;
+            right: 15px;
+        }
+        #test5{
+            background-color: rgba(30, 194, 216, 0.61);
+            position: sticky;
+            top: 10px;
+            margin-left: 600px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="test" id="test5">Sticky</div>
+        <div class="test" id="test1">Static</div>
+        <div class="test" id="test2">Relative</div>
+        <div class="test" id="test3">Absolute</div>
+        <div class="test" id="test4">Fixed</div>
+        
+    </div>
+    <div class="container1"></div>
+</body>
+</html>
