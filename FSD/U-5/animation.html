@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation</title>
+    <style>
+        div{
+            width: 400px;
+            height: 80px;
+            background-color: red;
+            border: 4px solid;
+            animation-name: hello;
+            animation-duration: 5s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+            animation-delay: 1s;
+            animation-direction:reverse;
+            position:relative;
+            transition-delay: 1s;
+            
+        }
+        @keyframes hello{
+            0%{background-color: red; top: 200px; left: 0px;}
+            
+            100%{background-color: yellow; top: 200px; left: 1200px;}
+
+        }
+    </style>
+</head>
+<body>
+    <div><h1>   Vimal! Bolo Zubaan Kesari</h1></div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Element Loading Animation</title>
+    <style>
+        /* Center the loader onto a dark screen */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #1a1a1a;
+        }
+
+        /* Flex container for the loading elements */
+        .loader-container {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Base styles for the individual elements */
+        .loader-container div {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            animation-name: pulse-wave;
+            animation-duration: 1.2s;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out;
+        }
+
+        /* Sequential coloring and animation delays to create a wave effect */
+        .loader-container div:nth-child(1) {
+            background-color: #ff3838;
+            animation-delay: -0.4s;
+        }
+
+        .loader-container div:nth-child(2) {
+            background-color: #3867ff;
+            animation-delay: -0.2s;
+        }
+
+        .loader-container div:nth-child(3) {
+            background-color: #ffb338;
+            animation-delay: 0s;
+        }
+
+        /* Smooth scale and color transformation loop */
+        @keyframes pulse-wave {
+            0%, 100% {
+                transform: scale(0.3);
+                opacity: 0.4;
+            }
+            50% {
+                transform: scale(1);
+                opacity: 1;
+                filter: drop-shadow(0 0 10px currentColor);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Container holding multiple element targets -->
+    <div class="loader-container">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+</body>
+</html>

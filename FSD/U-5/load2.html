@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Black Hole Event Horizon Loader</title>
+  <style>
+    /* Reset and Center Viewport */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #020208;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, sans-serif;
+      perspective: 1000px;
+    }
+
+    /* Core Black Hole Stage Container */
+    .singularity-stage {
+      position: relative;
+      width: 250px;
+      height: 250px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform-style: preserve-3d;
+      transform: rotateX(25deg); /* Subtle tilt to show accretion disk profile */
+    }
+
+    /* Absolute Null Center Singularity */
+    .singularity-core {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: #000000;
+      border-radius: 50%;
+      z-index: 10;
+      box-shadow: 
+        0 0 15px #000000,
+        0 0 30px rgba(0, 0, 0, 0.9),
+        0 0 10px rgba(255, 115, 0, 0.2);
+    }
+
+    /* Violent Photon Ring Gravitational Lensing Effect */
+    .photon-ring {
+      position: absolute;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      box-shadow: 0 0 18px 4px #ff5100;
+      background: transparent;
+      animation: warp-pulse 3s ease-in-out infinite alternate;
+      z-index: 9;
+    }
+
+    /* Accretion Disk Matter Swirl Streams */
+    .accretion-disk {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0%,
+        rgba(255, 94, 0, 0.6) 25%,
+        rgba(255, 208, 0, 0.8) 50%,
+        rgba(255, 0, 128, 0.6) 75%,
+        transparent 100%
+      );
+      /* Masks out center to turn the solid gradient wheel into a beautiful ring */
+      -webkit-mask: radial-gradient(circle, transparent 40%, black 41%);
+      mask: radial-gradient(circle, transparent 40%, black 41%);
+      animation: orbit-decay 0.5s linear infinite;
+    }
+
+    /* Secondary outer gas cloud matter feed */
+    .cosmic-dust {
+      position: absolute;
+      width: 140%;
+      height: 140%;
+      border-radius: 50%;
+      background: conic-gradient(
+        from 180deg,
+        transparent 0%,
+        rgba(0, 212, 255, 0.3) 40%,
+        rgba(154, 0, 255, 0.4) 70%,
+        transparent 100%
+      );
+      -webkit-mask: radial-gradient(circle, transparent 55%, black 56%);
+      mask: radial-gradient(circle, transparent 55%, black 56%);
+      animation: orbit-decay 4s linear infinite reverse;
+      opacity: 0.6;
+      filter: blur(2px);
+    }
+
+    /* Matter Jet Streams pulling into the center void */
+    .matter-spire {
+      position: absolute;
+      width: 6px;
+      height: 90px;
+      background: linear-gradient(to top, #ffffff, rgba(255, 81, 0, 0));
+      bottom: 50%;
+      transform-origin: bottom center;
+      animation: spaghettification 1s cubic-bezier(0.47, 0, 0.745, 0.715) infinite;
+    }
+
+    /* Ambient Typography */
+    .loading-label {
+      margin-top: 40px;
+      color: #edeeff;
+      font-size: 0.85rem;
+      letter-spacing: 7px;
+      text-transform: uppercase;
+      font-weight: 300;
+      opacity: 0.8;
+      text-shadow: 0 0 10px rgba(255, 94, 0, 0.5);
+    }
+
+    /* Dynamic Space-Time Distortions Animations */
+    @keyframes orbit-decay {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.04); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes warp-pulse {
+      0% { transform: scale(0.95) rotate(0deg); filter: blur(0.5px); }
+      100% { transform: scale(1.08) rotate(45deg); filter: blur(2px); }
+    }
+
+    @keyframes spaghettification {
+      0% {
+        transform: rotate(var(--rot)) translateY(-120px) scaleY(0.2) scaleX(1);
+        opacity: 0;
+      }
+      30% {
+        opacity: 1;
+        transform: rotate(var(--rot)) translateY(-80px) scaleY(1) scaleX(1.2);
+      }
+      85% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: rotate(var(--rot)) translateY(0px) scaleY(0.05) scaleX(0.1);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- The Singularity Grid Field -->
+  <div class="singularity-stage">
+    
+    <!-- Outer Infalling Stardust Layer -->
+    <div class="cosmic-dust"></div>
+    
+    <!-- Spinning High-Velocity Accretion Ring -->
+    <div class="accretion-disk"></div>
+    
+    <!-- Blazing Light Photon Border Rim -->
+    <div class="photon-ring"></div>
+    
+    <!-- Perfect Absolute Black Center Point -->
+    <div class="singularity-core"></div>
+
+    <!-- Spaghettified In-Falling Star Matter Pillars -->
+    <div class="matter-spire" style="--rot: 0deg; animation-delay: 0s;"></div>
+    <div class="matter-spire" style="--rot: 72deg; animation-delay: -0.4s;"></div>
+    <div class="matter-spire" style="--rot: 144deg; animation-delay: -0.8s;"></div>
+    <div class="matter-spire" style="--rot: 216deg; animation-delay: -1.2s;"></div>
+    <div class="matter-spire" style="--rot: 288deg; animation-delay: -1.6s;"></div>
+    
+  </div>
+
+  <!-- Loading Telemetry Banner -->
+  <div class="loading-label">Collapsing Reality</div>
+
+</body>
+</html>
