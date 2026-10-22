@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS-Gradient</title>
+    <style>
+        #grade1{
+            height: 400px;
+            width: 400px;
+            background-color: red;
+            background-image: linear-gradient(70deg,yellow,red,blue,green ,pink);
+        }
+        #grade2{
+            height: 400px;
+            width: 300px;
+            background-color: red;
+            background-image: radial-gradient(yellow,red,blue,green ,pink);
+        }
+        #grade3{
+            height: 400px;
+            width: 400px;
+            background-color: red;
+            background-image: radial-gradient(circle,red,orange,yellow,green,blue,indigo,violet);
+        }
+        #grade4{
+            height: 400px;
+            width: 400px;
+            background-color: red;
+            background-image: conic-gradient(from 45deg,red,orange,yellow,green,blue,indigo,violet);
+        }
+        #grade5{
+            margin: 50px;
+            height: 400px;
+            width: 400px;
+            background-color: red;
+            background-image: conic-gradient(red 0deg,orange 45deg,yellow 90deg,green 135deg,blue 180deg,indigo 225deg,violet 270deg, grey 315deg, pink 360deg);
+            border-radius: 50%;
+            animation-name: hello;
+            animation-duration: 10s;
+            animation-iteration-count:infinite;
+            animation-timing-function:linear;
+            animation-delay: 1s;
+            animation-direction:reverse;
+            position:relative;
+            transition-delay: 2s;
+        }
+        @keyframes hello{
+            0%{rotate: 360deg;}
+        }
+
+        #grade6{
+            margin: 50px;
+            height: 200px;
+            width: 200px;
+            background-color: red;
+            background-image: conic-gradient(red 0deg,orange 45deg,yellow 90deg,green 135deg,blue 180deg,indigo 225deg,violet 270deg, grey 315deg, pink 360deg);
+            border-radius: 50%;
+            animation-name: abc;
+            animation-duration: 5s;
+            animation-iteration-count:infinite;
+            animation-timing-function:linear;
+            animation-delay: 1s;
+            animation-direction:reverse;
+            position:relative;
+            transition-delay: 2s;
+        }
+        @keyframes abc{
+            0%{rotate: -720deg;}
+        }
+    </style>
+</head>
+<body>
+    <div id="grade1"></div>
+    <div id="grade2"></div>
+    <div id="grade3"></div>
+    <div id="grade4"></div>
+    <div id="grade5" align="center"><div id="grade6"></div></div>
+</body>
+</html>
