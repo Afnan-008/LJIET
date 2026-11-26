@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wedding Invitation - Mufaddal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX" crossorigin="anonymous">
+</head>
+<body class="bg-warning-subtle min-vh-100 d-flex align-items-center py-5">
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        
+        <!-- Main Wedding Card -->
+        <div class="card border border-warning shadow-lg rounded-4 overflow-hidden text-center">
+          
+          <!-- Traditional Maroon & Gold Header -->
+          <div class="card-header bg-danger text-white border-bottom border-warning border-3 py-4">
+            <span class="badge rounded-pill bg-warning text-dark px-3 py-2 text-uppercase fw-semibold">
+              Wedding Invitation
+            </span>
+            <p class="small text-uppercase fw-semibold text-warning-emphasis bg-warning-subtle d-inline-block px-3 py-1 rounded-pill mt-3 mb-0">
+              Together With Their Families
+            </p>
+          </div>
+
+          <!-- Card Body -->
+          <div class="card-body bg-white p-4 p-md-5">
+            <p class="text-body-secondary mb-3">
+              We joyfully invite you to celebrate the wedding of
+            </p>
+
+            <!-- Couple Names Card -->
+            <div class="card bg-warning-subtle border-warning rounded-4 p-4 my-3">
+              <h1 class="display-4 fw-bold text-danger-emphasis mb-1">Mufaddal</h1>
+              <p class="fs-4 text-warning-emphasis fw-semibold my-1">&amp;</p>
+              <h2 class="display-5 fw-bold text-danger-emphasis mb-0">His Wife</h2>
+            </div>
+
+            <!-- Ceremony & Reception Cards -->
+            <div class="row g-3 mt-3 text-start">
+              
+              <!-- Nikah Ceremony Card -->
+              <div class="col-12 col-sm-6">
+                <div class="card h-100 border-danger-subtle bg-danger-subtle rounded-3">
+                  <div class="card-body p-3">
+                    <span class="badge bg-danger text-white mb-2">Ceremony</span>
+                    <h6 class="card-title fw-bold text-danger-emphasis mb-1">Nikah</h6>
+                    <p class="card-text small text-dark mb-1">Saturday, 12th Dec 2026</p>
+                    <p class="card-text small text-dark mb-1">11:30 AM</p>
+                    <p class="card-text small text-body-secondary mb-0">[Venue Name, City]</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Walima Reception Card -->
+              <div class="col-12 col-sm-6">
+                <div class="card h-100 border-warning-subtle bg-warning-subtle rounded-3">
+                  <div class="card-body p-3">
+                    <span class="badge bg-warning text-dark mb-2">Reception</span>
+                    <h6 class="card-title fw-bold text-warning-emphasis mb-1">Walima Dinner</h6>
+                    <p class="card-text small text-dark mb-1">Sunday, 13th Dec 2026</p>
+                    <p class="card-text small text-dark mb-1">7:30 PM</p>
+                    <p class="card-text small text-body-secondary mb-0">[Banquet Hall, City]</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4 pt-2">
+              <button type="button" class="btn btn-danger btn-lg px-4 rounded-pill fw-semibold" data-bs-toggle="modal" data-bs-target="#rsvpModal">
+                RSVP Now
+              </button>
+              <button type="button" class="btn btn-outline-danger btn-lg px-4 rounded-pill" data-bs-toggle="collapse" data-bs-target="#hostInfoCard" aria-expanded="false" aria-controls="hostInfoCard">
+                Host Info
+              </button>
+            </div>
+
+            <!-- Collapsible Host Info Card -->
+            <div class="collapse mt-3" id="hostInfoCard">
+              <div class="card card-body bg-warning-subtle border-warning-subtle small text-dark">
+                <strong>Hosted by:</strong> The Family of Mufaddal<br>
+                <strong>Contact:</strong> +91 98765 43210
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Card Footer -->
+          <div class="card-footer bg-danger-subtle border-top border-warning-subtle py-3 text-danger-emphasis small fw-medium">
+            We look forward to celebrating with you.
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RSVP Modal -->
+  <div class="modal fade" id="rsvpModal" tabindex="-1" aria-labelledby="rsvpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-warning shadow rounded-4 overflow-hidden">
+        <div class="modal-header bg-danger text-white border-bottom border-warning border-2">
+          <h5 class="modal-title fw-bold" id="rsvpModalLabel">RSVP for Mufaddal's Wedding</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4 bg-white">
+          <form>
+            <div class="mb-3">
+              <label for="guestName" class="form-label fw-semibold text-danger-emphasis">Full Name</label>
+              <input type="text" class="form-control border-warning-subtle" id="guestName" placeholder="Enter your name" required>
+            </div>
+            <div class="mb-3">
+              <label for="guestCount" class="form-label fw-semibold text-danger-emphasis">Number of Guests</label>
+              <select class="form-select border-warning-subtle" id="guestCount">
+                <option value="1">1 Guest</option>
+                <option value="2" selected>2 Guests</option>
+                <option value="3">3 Guests</option>
+                <option value="4">4+ Guests</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="guestMessage" class="form-label fw-semibold text-danger-emphasis">Wishes for Mufaddal</label>
+              <textarea class="form-control border-warning-subtle" id="guestMessage" rows="3" placeholder="Write your wishes..."></textarea>
+            </div>
+            <div class="d-grid">
+              <button type="button" class="btn btn-danger rounded-pill fw-semibold" data-bs-dismiss="modal">Confirm Attendance</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/js/bootstrap.bundle.min.js" integrity="sha384-WyOxWvTyr1QaMPfiPJSv76iReVthorl5uWlFtZPyK0IEB0hGzo9y5Bp9mYanr8Bu" crossorigin="anonymous"></script>
+</body>
+</html>
