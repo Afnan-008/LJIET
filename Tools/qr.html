@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QR Code Generator</title>
+  <style>
+    * { box-sizing: border-box }
+    body {
+      margin: 0; padding: 24px; min-height: 100vh; display: grid;
+      place-items: center; background: #f3f5f9; color: #172033;
+      font: 16px system-ui, sans-serif;
+    }
+    main {
+      width: min(100%, 680px); padding: 26px; background: white;
+      border: 1px solid #e4e8f0; border-radius: 16px;
+      box-shadow: 0 12px 40px #17203312;
+    }
+    h1 { margin: 0 0 6px; font-size: 1.6rem }
+    p { color: #667085; line-height: 1.45 }
+    label { display: block; margin: 14px 0 6px; font-weight: 650 }
+    input, textarea, select {
+      width: 100%; padding: 10px 12px; border: 1px solid #cbd2df;
+      border-radius: 8px; background: #fff; font: inherit;
+    }
+    textarea { min-height: 94px; resize: vertical }
+    input:focus, textarea:focus, select:focus { outline: 3px solid #3559e033 }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px }
+    .buttons { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px }
+    button {
+      padding: 10px 14px; border: 0; border-radius: 8px;
+      background: #edf0f6; color: #172033; font: inherit;
+      font-weight: 650; cursor: pointer;
+    }
+    button.primary { background: #3559e0; color: white }
+    button:disabled { opacity: .5; cursor: not-allowed }
+    #status { min-height: 1.4em; margin: 10px 0; font-size: .9rem }
+    #status.error { color: #b42318 }
+    #status.valid { color: #067647 }
+    .preview {
+      min-height: 280px; margin-top: 18px; padding: 14px;
+      display: grid; place-items: center; border: 1px dashed #cbd2df;
+      border-radius: 10px; background: #fafbfe;
+    }
+    canvas { width: min(100%, 280px); height: auto; image-rendering: pixelated }
+    .small { font-size: .86rem }
+    #history { padding-left: 20px }
+    #history button { margin: 3px; padding: 5px 8px; font-size: .85rem }
+    .check { display: flex; align-items: center; gap: 8px; margin-top: 12px }
+    .check input { width: auto }
+    @media(max-width: 520px) {
+      main { padding: 18px }
+      .grid { grid-template-columns: 1fr }
+    }
+    @media print {
+      body { display: block; padding: 0; background: white }
+      main { width: 100%; border: 0; box-shadow: none }
+      form, .no-print, #status, h1, main > p { display: none !important }
+      .preview { border: 0 }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>QR Code Generator</h1>
+  <p>Create QR codes for links, text, contact details, email, phone, or Wi-Fi.</p>
+
+  <form id="form">
+    <div class="grid">
+      <div>
+        <label for="type">QR content type</label>
+        <select id="type">
+          <option value="url">Website URL</option>
+          <option value="text">Plain text</option>
+          <option value="email">Email</option>
+          <option value="phone">Phone number</option>
+          <option value="wifi">Wi-Fi network</option>
+          <option value="vcard">Contact card (vCard)</option>
+        </select>
+      </div>
+      <div>
+        <label for="ecc">Error correction</label>
+        <select id="ecc">
+          <option value="L">Low</option>
+          <option value="M" selected>Medium</option>
+          <option value="Q">Quartile</option>
+          <option value="H">High</option>
+        </select>
+      </div>
+    </div>
+
+    <section data-panel="url">
+      <label for="url">Website URL</label>
+      <input id="url" placeholder="www.example.com" autocomplete="url">
+    </section>
+
+    <section data-panel="text" hidden>
+      <label for="text">Text</label>
+      <textarea id="text" placeholder="Enter any text"></textarea>
+    </section>
+
+    <section data-panel="email" hidden>
+      <label for="email">Email address</label>
+      <input id="email" type="email" placeholder="name@example.com">
+      <label for="subject">Subject (optional)</label>
+      <input id="subject" placeholder="Subject">
+      <label for="message">Message (optional)</label>
+      <textarea id="message" placeholder="Message"></textarea>
+    </section>
+
+    <section data-panel="phone" hidden>
+      <label for="phone">Phone number</label>
+      <input id="phone" type="tel" placeholder="+1 555 123 4567">
+    </section>
+
+    <section data-panel="wifi" hidden>
+      <label for="ssid">Wi-Fi network name (SSID)</label>
+      <input id="ssid" placeholder="Network name">
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Password">
+      <label for="security">Security</label>
+      <select id="security">
+        <option value="WPA">WPA/WPA2</option>
+        <option value="WEP">WEP</option>
+        <option value="nopass">No password</option>
+      </select>
+      <label class="check"><input id="hiddenNetwork" type="checkbox"> Hidden network</label>
+    </section>
+
+    <section data-panel="vcard" hidden>
+      <div class="grid">
+        <div><label for="firstName">First name</label><input id="firstName"></div>
+        <div><label for="lastName">Last name</label><input id="lastName"></div>
+      </div>
+      <label for="contactPhone">Phone (optional)</label>
+      <input id="contactPhone" type="tel">
+      <label for="contactEmail">Email (optional)</label>
+      <input id="contactEmail" type="email">
+      <label for="organization">Organization (optional)</label>
+      <input id="organization">
+      <label for="website">Website (optional)</label>
+      <input id="website" placeholder="example.com">
+    </section>
+
+    <div class="grid">
+      <div><label for="dark">QR color</label><input id="dark" type="color" value="#000000"></div>
+      <div><label for="light">Background color</label><input id="light" type="color" value="#ffffff"></div>
+    </div>
+
+    <label for="filename">Download filename (without extension)</label>
+    <input id="filename" placeholder="Uses the URL domain automatically">
+
+    <div class="buttons">
+      <button class="primary" type="submit">Generate QR</button>
+      <button id="png" type="button" disabled>Download PNG</button>
+      <button id="svg" type="button" disabled>Download SVG</button>
+      <button id="share" type="button" disabled>Share</button>
+      <button id="print" type="button">Print</button>
+    </div>
+
+    <p id="status" role="status" aria-live="polite">Ready.</p>
+  </form>
+
+  <div class="preview" aria-label="QR code preview">
+    <canvas id="canvas" width="256" height="256"></canvas>
+  </div>
+
+  <section class="no-print">
+    <h2>Bulk URL generation</h2>
+    <p class="small">Enter one URL per line. Download all generated QR codes as a ZIP file.</p>
+    <label for="bulk">URLs</label>
+    <textarea id="bulk" placeholder="example.com&#10;https://example.org"></textarea>
+    <div class="buttons">
+      <button id="bulkButton" type="button">Create ZIP</button>
+    </div>
+  </section>
+
+  <section class="no-print">
+    <h2>Recent codes</h2>
+    <ul id="history" class="small"></ul>
+    <button id="clearHistory" type="button">Clear history</button>
+  </section>
+</main>
+
+<!-- External libraries keep this HTML much smaller; internet is required. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const form = $("form"), canvas = $("canvas"), ctx = canvas.getContext("2d");
+const status = $("status"), typeSelect = $("type");
+let currentText = "", currentFilename = "qrcode";
+
+function setStatus(message, kind = "") {
+  status.textContent = message;
+  status.className = kind;
+}
+
+function normalizeURL(value) {
+  let text = value.trim();
+  if (!text) throw Error("Enter a website URL.");
+  if (!/^[a-z][a-z0-9+.-]*:/i.test(text)) text = "https://" + text;
+
+  let url;
+  try { url = new URL(text); }
+  catch { throw Error("Enter a valid URL, such as www.example.com."); }
+
+  if (!["http:", "https:"].includes(url.protocol))
+    throw Error("Only HTTP and HTTPS URLs are supported.");
+  if (!url.hostname || url.hostname.includes(" "))
+    throw Error("Enter a valid website hostname.");
+  if (url.hostname !== "localhost" && !url.hostname.includes(".") &&
+      !/^\d{1,3}(\.\d{1,3}){3}$/.test(url.hostname))
+    throw Error("Use a complete domain, such as example.com.");
+
+  return url.href;
+}
+
+function escapeWifi(value) {
+  return value.replace(/([\\;,":])/g, "\\$1");
+}
+
+function getContent() {
+  switch (typeSelect.value) {
+    case "url":
+      return normalizeURL($("url").value);
+
+    case "text": {
+      const text = $("text").value.trim();
+      if (!text) throw Error("Enter some text.");
+      return text;
+    }
+
+    case "email": {
+      const address = $("email").value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))
+        throw Error("Enter a valid email address.");
+      const params = new URLSearchParams();
+      if ($("subject").value) params.set("subject", $("subject").value);
+      if ($("message").value) params.set("body", $("message").value);
+      return "mailto:" + address + (params.size ? "?" + params : "");
+    }
+
+    case "phone": {
+      const phone = $("phone").value.trim();
+      if (!/^\+?[\d\s().-]{5,}$/.test(phone))
+        throw Error("Enter a valid phone number.");
+      return "tel:" + phone.replace(/[^\d+]/g, "");
+    }
+
+    case "wifi": {
+      const ssid = $("ssid").value;
+      if (!ssid) throw Error("Enter the Wi-Fi network name.");
+      const security = $("security").value;
+      if (security !== "nopass" && !$("password").value)
+        throw Error("Enter the Wi-Fi password.");
+      return `WIFI:T:${security};S:${escapeWifi(ssid)};P:${escapeWifi($("password").value)};H:${$("hiddenNetwork").checked};;`;
+    }
+
+    case "vcard": {
+      const first = $("firstName").value.trim();
+      const last = $("lastName").value.trim();
+      if (!first && !last) throw Error("Enter at least a contact name.");
+      const website = $("website").value.trim()
+        ? normalizeURL($("website").value) : "";
+      return [
+        "BEGIN:VCARD", "VERSION:3.0",
+        `N:${last};${first};;;`, `FN:${[first, last].filter(Boolean).join(" ")}`,
+        $("contactPhone").value ? `TEL:${$("contactPhone").value}` : "",
+        $("contactEmail").value ? `EMAIL:${$("contactEmail").value}` : "",
+        $("organization").value ? `ORG:${$("organization").value}` : "",
+        website ? `URL:${website}` : "",
+        "END:VCARD"
+      ].filter(Boolean).join("\n");
+    }
+  }
+}
+
+function draw(text, correction = $("ecc").value, dark = $("dark").value, light = $("light").value) {
+  if (typeof qrcode !== "function") throw Error("QR library unavailable. Check your internet connection.");
+
+  const qr = qrcode(0, correction);
+  qr.addData(text);
+  qr.make();
+
+  const count = qr.getModuleCount(), quiet = 4, total = count + quiet * 2;
+  const scale = Math.max(1, Math.floor(320 / total)), size = total * scale;
+  canvas.width = canvas.height = size;
+
+  ctx.fillStyle = light;
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = dark;
+
+  for (let y = 0; y < count; y++)
+    for (let x = 0; x < count; x++)
+      if (qr.isDark(y, x))
+        ctx.fillRect((x + quiet) * scale, (y + quiet) * scale, scale, scale);
+
+  currentText = text;
+  $("png").disabled = $("svg").disabled = $("share").disabled = false;
+  return qr;
+}
+
+function safeName(name) {
+  return (name || "qrcode").replace(/[\\/:*?"<>|]/g, "_").slice(0, 100);
+}
+
+function getFilename(text) {
+  const custom = $("filename").value.trim();
+  if (custom) return safeName(custom);
+
+  if (typeSelect.value === "url") {
+    try { return safeName(new URL(text).hostname.replace(/^www\./i, "")); }
+    catch {}
+  }
+  return typeSelect.value + "-qrcode";
+}
+
+function download(blob, filename) {
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function saveHistory(text, filename) {
+  try {
+    const history = JSON.parse(localStorage.qrHistory || "[]");
+    const next = [{ text, filename, type: typeSelect.value, time: Date.now() },
+      ...history.filter(item => item.text !== text)].slice(0, 8);
+    localStorage.qrHistory = JSON.stringify(next);
+    renderHistory();
+  } catch {}
+}
+
+function renderHistory() {
+  let items = [];
+  try { items = JSON.parse(localStorage.qrHistory || "[]"); } catch {}
+  const list = $("history");
+  list.replaceChildren();
+
+  if (!items.length) {
+    const li = document.createElement("li");
+    li.textContent = "No recent codes.";
+    list.append(li);
+    return;
+  }
+
+  items.forEach(item => {
+    const li = document.createElement("li");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = item.filename;
+    button.title = item.text;
+    button.addEventListener("click", () => {
+      try {
+        $("filename").value = item.filename;
+        draw(item.text);
+        currentFilename = item.filename;
+        setStatus("Restored recent QR code.", "valid");
+      } catch (error) { setStatus(error.message, "error"); }
+    });
+    li.append(button);
+    list.append(li);
+  });
+}
+
+typeSelect.addEventListener("change", () => {
+  document.querySelectorAll("[data-panel]").forEach(panel => {
+    panel.hidden = panel.dataset.panel !== typeSelect.value;
+  });
+});
+
+form.addEventListener("submit", event => {
+  event.preventDefault();
+  try {
+    const text = getContent();
+    const qr = draw(text);
+    currentFilename = getFilename(text);
+    saveHistory(text, currentFilename);
+    setStatus("QR code generated successfully.", "valid");
+  } catch (error) {
+    currentText = "";
+    $("png").disabled = $("svg").disabled = $("share").disabled = true;
+    setStatus(error.message || "Could not generate QR code.", "error");
+  }
+});
+
+$("png").addEventListener("click", () => {
+  if (!currentText) return;
+  canvas.toBlob(blob => blob && download(blob, currentFilename + ".png"));
+});
+
+$("svg").addEventListener("click", () => {
+  if (!currentText) return;
+  try {
+    const qr = qrcode(0, $("ecc").value);
+    qr.addData(currentText);
+    qr.make();
+    const svg = qr.createSvgTag(4, 0);
+    const colored = svg.replace(/<path /, `<path fill="${$("dark").value}" `)
+      .replace(/<svg /, `<svg style="background:${$("light").value}" `);
+    download(new Blob([colored], { type: "image/svg+xml" }), currentFilename + ".svg");
+  } catch (error) { setStatus(error.message, "error"); }
+});
+
+$("share").addEventListener("click", async () => {
+  if (!currentText) return;
+  try {
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+    const file = new File([blob], currentFilename + ".png", { type: "image/png" });
+    if (navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ title: "QR code", files: [file] });
+    } else if (navigator.share) {
+      await navigator.share({ title: "QR code", text: currentText });
+    } else {
+      setStatus("Sharing is not supported by this browser.", "error");
+    }
+  } catch (error) {
+    if (error.name !== "AbortError") setStatus("Could not share this QR code.", "error");
+  }
+});
+
+$("print").addEventListener("click", () => window.print());
+
+$("clearHistory").addEventListener("click", () => {
+  localStorage.removeItem("qrHistory");
+  renderHistory();
+  setStatus("Recent codes cleared.");
+});
+
+$("bulkButton").addEventListener("click", async () => {
+  if (typeof JSZip !== "function") {
+    setStatus("ZIP library unavailable. Check your internet connection.", "error");
+    return;
+  }
+
+  const urls = $("bulk").value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  if (!urls.length) {
+    setStatus("Enter at least one URL for bulk generation.", "error");
+    return;
+  }
+
+  try {
+    const zip = new JSZip();
+    const used = new Set();
+
+    for (let i = 0; i < urls.length; i++) {
+      const normalized = normalizeURL(urls[i]);
+      const qr = qrcode(0, $("ecc").value);
+      qr.addData(normalized);
+      qr.make();
+
+      const name = safeName(new URL(normalized).hostname.replace(/^www\./i, "")) || `qr-${i + 1}`;
+      const unique = used.has(name) ? `${name}-${i + 1}` : name;
+      used.add(unique);
+
+      const svg = qr.createSvgTag(4, 0);
+      zip.file(unique + ".svg", svg);
+    }
+
+    const blob = await zip.generateAsync({ type: "blob" });
+    download(blob, "qr-codes.zip");
+    setStatus(`Created ${urls.length} QR code(s) in a ZIP file.`, "valid");
+  } catch (error) {
+    setStatus(error.message || "Bulk generation failed.", "error");
+  }
+});
+
+renderHistory();
+</script>
+</body>
+</html>

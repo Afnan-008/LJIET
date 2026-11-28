@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QR Code Generator</title>
+  <style>
+    * { box-sizing: border-box }
+    body {
+      margin: 0; padding: 24px; min-height: 100vh; display: grid;
+      place-items: center; background: #f3f5f9; color: #172033;
+      font: 16px system-ui, sans-serif;
+    }
+    main {
+      width: min(100%, 760px); padding: 26px; background: white;
+      border: 1px solid #e4e8f0; border-radius: 16px;
+      box-shadow: 0 12px 40px #17203312;
+    }
+    h1 { margin: 0 0 6px; font-size: 1.6rem }
+    h2 { margin: 26px 0 8px }
+    p { color: #667085; line-height: 1.45 }
+    label { display: block; margin: 14px 0 6px; font-weight: 650 }
+    input, textarea, select {
+      width: 100%; padding: 10px 12px; border: 1px solid #cbd2df;
+      border-radius: 8px; background: #fff; font: inherit;
+    }
+    input[type="checkbox"] { width: auto }
+    input[type="color"] { height: 44px; padding: 4px }
+    input:focus, textarea:focus, select:focus, button:focus-visible {
+      outline: 3px solid #3559e055; outline-offset: 2px;
+    }
+    textarea { min-height: 94px; resize: vertical }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px }
+    .buttons { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px }
+    button {
+      padding: 10px 14px; border: 0; border-radius: 8px;
+      background: #edf0f6; color: #172033; font: inherit;
+      font-weight: 650; cursor: pointer;
+    }
+    button.primary { background: #3559e0; color: white }
+    button:disabled { opacity: .5; cursor: not-allowed }
+    #status { min-height: 1.4em; margin: 10px 0; font-size: .9rem }
+    #status.error { color: #b42318 }
+    #status.valid { color: #067647 }
+    .preview {
+      min-height: 280px; margin-top: 18px; padding: 14px;
+      display: grid; place-items: center; border: 1px dashed #cbd2df;
+      border-radius: 10px; background: #fafbfe;
+    }
+    .qr-wrap { display: grid; justify-items: center; gap: 8px; max-width: 100% }
+    #canvas { display: block; max-width: 100%; height: auto; image-rendering: pixelated }
+    #captionPreview { font-weight: 700; text-align: center; overflow-wrap: anywhere }
+    .small { font-size: .86rem }
+    .muted { color: #667085 }
+    #history { padding-left: 20px }
+    #history button { margin: 3px; padding: 5px 8px; font-size: .85rem }
+    .check { display: flex; align-items: center; gap: 8px; margin-top: 12px }
+    .check label { margin: 0 }
+    .row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px }
+    .logo-preview { max-width: 100px; max-height: 100px; object-fit: contain; margin-top: 8px }
+    .notice { padding: 10px 12px; border-radius: 8px; background: #f5f7ff; color: #344054 }
+    [hidden] { display: none !important }
+    @media(max-width: 520px) {
+      body { padding: 12px }
+      main { padding: 18px }
+      .grid { grid-template-columns: 1fr }
+    }
+    @media print {
+      body { display: block; padding: 0; background: white }
+      main { width: 100%; border: 0; box-shadow: none }
+      form, .no-print, #status, h1, main > p { display: none !important }
+      .preview { border: 0; min-height: 0 }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>QR Code Generator</h1>
+  <p>Create and customize QR codes for links, text, contacts, email, phone, Wi-Fi, and more.</p>
+
+  <form id="form">
+    <div class="grid">
+      <div>
+        <label for="type">QR content type</label>
+        <select id="type">
+          <option value="url">Website URL</option>
+          <option value="text">Plain text</option>
+          <option value="email">Email</option>
+          <option value="phone">Phone number</option>
+          <option value="sms">SMS message</option>
+          <option value="wifi">Wi-Fi network</option>
+          <option value="vcard">Contact card (vCard)</option>
+          <option value="location">Map location</option>
+          <option value="event">Calendar event</option>
+          <option value="social">Social profile URL</option>
+          <option value="payment">Payment URL</option>
+        </select>
+      </div>
+      <div>
+        <label for="ecc">Error correction</label>
+        <select id="ecc">
+          <option value="L">Low</option>
+          <option value="M" selected>Medium</option>
+          <option value="Q">Quartile</option>
+          <option value="H">High (recommended with logo)</option>
+        </select>
+      </div>
+    </div>
+
+    <section data-panel="url">
+      <label for="url">Website URL</label>
+      <input id="url" placeholder="www.example.com" autocomplete="url">
+    </section>
+
+    <section data-panel="text" hidden>
+      <label for="text">Text</label>
+      <textarea id="text" placeholder="Enter any text"></textarea>
+    </section>
+
+    <section data-panel="email" hidden>
+      <label for="email">Email address</label>
+      <input id="email" type="email" placeholder="name@example.com">
+      <label for="subject">Subject (optional)</label>
+      <input id="subject" placeholder="Subject">
+      <label for="message">Message (optional)</label>
+      <textarea id="message" placeholder="Message"></textarea>
+    </section>
+
+    <section data-panel="phone" hidden>
+      <label for="phone">Phone number</label>
+      <input id="phone" type="tel" placeholder="+1 555 123 4567">
+    </section>
+
+    <section data-panel="sms" hidden>
+      <label for="smsPhone">Phone number</label>
+      <input id="smsPhone" type="tel" placeholder="+1 555 123 4567">
+      <label for="smsMessage">Message (optional)</label>
+      <textarea id="smsMessage" placeholder="Your message"></textarea>
+    </section>
+
+    <section data-panel="wifi" hidden>
+      <label for="ssid">Wi-Fi network name (SSID)</label>
+      <input id="ssid" placeholder="Network name">
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Password">
+      <label for="security">Security</label>
+      <select id="security">
+        <option value="WPA">WPA/WPA2</option>
+        <option value="WEP">WEP</option>
+        <option value="nopass">No password</option>
+      </select>
+      <label class="check"><input id="hiddenNetwork" type="checkbox"> Hidden network</label>
+    </section>
+
+    <section data-panel="vcard" hidden>
+      <div class="grid">
+        <div><label for="firstName">First name</label><input id="firstName"></div>
+        <div><label for="lastName">Last name</label><input id="lastName"></div>
+      </div>
+      <label for="contactPhone">Phone (optional)</label>
+      <input id="contactPhone" type="tel">
+      <label for="contactEmail">Email (optional)</label>
+      <input id="contactEmail" type="email">
+      <label for="organization">Organization (optional)</label>
+      <input id="organization">
+      <label for="website">Website (optional)</label>
+      <input id="website" placeholder="example.com">
+    </section>
+
+    <section data-panel="location" hidden>
+      <div class="grid">
+        <div><label for="latitude">Latitude</label><input id="latitude" type="number" step="any" placeholder="37.7749"></div>
+        <div><label for="longitude">Longitude</label><input id="longitude" type="number" step="any" placeholder="-122.4194"></div>
+      </div>
+      <label for="locationLabel">Place name (optional)</label>
+      <input id="locationLabel" placeholder="San Francisco">
+    </section>
+
+    <section data-panel="event" hidden>
+      <label for="eventTitle">Event title</label>
+      <input id="eventTitle" placeholder="Team meeting">
+      <div class="grid">
+        <div><label for="eventStart">Start date and time</label><input id="eventStart" type="datetime-local"></div>
+        <div><label for="eventEnd">End date and time</label><input id="eventEnd" type="datetime-local"></div>
+      </div>
+      <label for="eventLocation">Location (optional)</label>
+      <input id="eventLocation">
+      <label for="eventDescription">Description (optional)</label>
+      <textarea id="eventDescription"></textarea>
+    </section>
+
+    <section data-panel="social" hidden>
+      <label for="socialUrl">Social profile or landing-page URL</label>
+      <input id="socialUrl" placeholder="https://example.com/your-profile">
+      <p class="small">This encodes the URL you provide; it does not host or create a profile page.</p>
+    </section>
+
+    <section data-panel="payment" hidden>
+      <label for="paymentUrl">Payment link / provider URL</label>
+      <input id="paymentUrl" placeholder="https://payment-provider.example/...">
+      <p class="small">Use a payment link from your provider. QR payment formats vary by provider and country.</p>
+    </section>
+
+    <div class="grid">
+      <div><label for="dark">QR color</label><input id="dark" type="color" value="#000000"></div>
+      <div><label for="light">Background color</label><input id="light" type="color" value="#ffffff"></div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <label for="size">Export resolution (pixels)</label>
+        <select id="size">
+          <option value="256">256 × 256</option>
+          <option value="512" selected>512 × 512</option>
+          <option value="1024">1024 × 1024</option>
+          <option value="2048">2048 × 2048</option>
+        </select>
+      </div>
+      <div>
+        <label for="style">QR module style</label>
+        <select id="style">
+          <option value="square">Square</option>
+          <option value="rounded">Rounded</option>
+          <option value="dots">Dots</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="caption">Caption / frame text (optional)</label>
+    <input id="caption" placeholder="Scan to visit our website">
+
+    <label for="logoFile">Center logo (optional PNG/JPG/WebP)</label>
+    <input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp">
+    <div class="row-actions">
+      <img id="logoPreview" class="logo-preview" alt="Selected logo preview" hidden>
+      <button id="removeLogo" type="button" hidden>Remove logo</button>
+    </div>
+
+    <div class="check">
+      <input id="transparent" type="checkbox">
+      <label for="transparent">Transparent background (PNG only)</label>
+    </div>
+
+    <label for="filename">Download filename (without extension)</label>
+    <input id="filename" placeholder="Uses the URL domain automatically">
+
+    <div class="buttons">
+      <button class="primary" type="submit">Generate QR</button>
+      <button id="png" type="button" disabled>Download PNG</button>
+      <button id="jpg" type="button" disabled>Download JPG</button>
+      <button id="svg" type="button" disabled>Download SVG</button>
+      <button id="pdf" type="button" disabled>Download PDF</button>
+      <button id="copy" type="button" disabled>Copy image</button>
+      <button id="share" type="button" disabled>Share</button>
+      <button id="print" type="button">Print</button>
+    </div>
+
+    <p id="status" role="status" aria-live="polite">Ready.</p>
+    <p id="checkResult" class="small" role="status" aria-live="polite"></p>
+  </form>
+
+  <div class="preview" aria-label="QR code preview">
+    <div class="qr-wrap">
+      <canvas id="canvas" width="512" height="512"></canvas>
+      <div id="captionPreview"></div>
+    </div>
+  </div>
+
+  <section class="no-print">
+    <h2>Bulk URL generation</h2>
+    <p class="small">Enter one URL per line, or upload a CSV file with a URL in the first column. ZIP files contain SVG QR codes.</p>
+    <label for="bulk">URLs</label>
+    <textarea id="bulk" placeholder="example.com&#10;https://example.org"></textarea>
+    <label for="csvFile">Or upload CSV</label>
+    <input id="csvFile" type="file" accept=".csv,text/csv">
+    <div class="buttons">
+      <button id="bulkButton" type="button">Create ZIP</button>
+    </div>
+  </section>
+
+  <section class="no-print">
+    <h2>Brand presets</h2>
+    <p class="small">Presets save your colors, style, caption, and logo in this browser.</p>
+    <div class="grid">
+      <div><label for="presetName">Preset name</label><input id="presetName" placeholder="My brand"></div>
+      <div><label for="presetSelect">Saved presets</label><select id="presetSelect"><option value="">Choose a preset</option></select></div>
+    </div>
+    <div class="buttons">
+      <button id="savePreset" type="button">Save current settings</button>
+      <button id="loadPreset" type="button">Load selected</button>
+      <button id="deletePreset" type="button">Delete selected</button>
+    </div>
+  </section>
+
+  <section class="no-print">
+    <h2>Recent codes</h2>
+    <ul id="history" class="small"></ul>
+    <button id="clearHistory" type="button">Clear history</button>
+  </section>
+
+  <section class="no-print">
+    <h2>Offline use</h2>
+    <p class="notice small">
+      This single-file app loads QR, ZIP, and PDF libraries from CDNs, so it needs internet access.
+      For offline use, download those libraries and change the script URLs to local files.
+      A service worker requires serving this page over HTTPS or localhost.
+    </p>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const form = $("form"), canvas = $("canvas"), ctx = canvas.getContext("2d");
+const status = $("status"), typeSelect = $("type");
+let currentText = "", currentFilename = "qrcode", logoImage = null, currentQR = null;
+
+function setStatus(message, kind = "") {
+  status.textContent = message;
+  status.className = kind;
+}
+
+function normalizeURL(value) {
+  let text = value.trim();
+  if (!text) throw Error("Enter a URL.");
+  if (!/^[a-z][a-z0-9+.-]*:/i.test(text)) text = "https://" + text;
+  let url;
+  try { url = new URL(text); }
+  catch { throw Error("Enter a valid URL, such as www.example.com."); }
+  if (!["http:", "https:"].includes(url.protocol))
+    throw Error("Only HTTP and HTTPS URLs are supported.");
+  if (!url.hostname || url.hostname.includes(" "))
+    throw Error("Enter a valid website hostname.");
+  if (url.hostname !== "localhost" && !url.hostname.includes(".") &&
+      !/^\d{1,3}(\.\d{1,3}){3}$/.test(url.hostname))
+    throw Error("Use a complete domain, such as example.com.");
+  return url.href;
+}
+
+function escapeWifi(value) {
+  return value.replace(/([\\;,":])/g, "\\$1");
+}
+
+function escapeVCard(value) {
+  return String(value).replace(/\\/g, "\\\\").replace(/\n/g, "\\n")
+    .replace(/([,;])/g, "\\$1");
+}
+
+function getContent() {
+  switch (typeSelect.value) {
+    case "url":
+      return normalizeURL($("url").value);
+
+    case "text": {
+      const text = $("text").value.trim();
+      if (!text) throw Error("Enter some text.");
+      return text;
+    }
+
+    case "email": {
+      const address = $("email").value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))
+        throw Error("Enter a valid email address.");
+      const params = new URLSearchParams();
+      if ($("subject").value) params.set("subject", $("subject").value);
+      if ($("message").value) params.set("body", $("message").value);
+      return "mailto:" + address + (params.size ? "?" + params : "");
+    }
+
+    case "phone": {
+      const phone = $("phone").value.trim();
+      if (!/^\+?[\d\s().-]{5,}$/.test(phone))
+        throw Error("Enter a valid phone number.");
+      return "tel:" + phone.replace(/[^\d+]/g, "");
+    }
+
+    case "sms": {
+      const phone = $("smsPhone").value.trim();
+      if (!/^\+?[\d\s().-]{5,}$/.test(phone))
+        throw Error("Enter a valid phone number.");
+      const message = $("smsMessage").value.trim();
+      return "sms:" + phone.replace(/[^\d+]/g, "") +
+        (message ? "?body=" + encodeURIComponent(message) : "");
+    }
+
+    case "wifi": {
+      const ssid = $("ssid").value;
+      if (!ssid) throw Error("Enter the Wi-Fi network name.");
+      const security = $("security").value;
+      if (security !== "nopass" && !$("password").value)
+        throw Error("Enter the Wi-Fi password.");
+      return `WIFI:T:${security};S:${escapeWifi(ssid)};P:${escapeWifi($("password").value)};H:${$("hiddenNetwork").checked};;`;
+    }
+
+    case "vcard": {
+      const first = $("firstName").value.trim();
+      const last = $("lastName").value.trim();
+      if (!first && !last) throw Error("Enter at least a contact name.");
+      const website = $("website").value.trim()
+        ? normalizeURL($("website").value) : "";
+      return [
+        "BEGIN:VCARD", "VERSION:3.0",
+        `N:${escapeVCard(last)};${escapeVCard(first)};;;`,
+        `FN:${escapeVCard([first, last].filter(Boolean).join(" "))}`,
+        $("contactPhone").value ? `TEL:${escapeVCard($("contactPhone").value)}` : "",
+        $("contactEmail").value ? `EMAIL:${escapeVCard($("contactEmail").value)}` : "",
+        $("organization").value ? `ORG:${escapeVCard($("organization").value)}` : "",
+        website ? `URL:${website}` : "",
+        "END:VCARD"
+      ].filter(Boolean).join("\r\n");
+    }
+
+    case "location": {
+      const lat = Number($("latitude").value), lon = Number($("longitude").value);
+      if ($("latitude").value === "" || $("longitude").value === "" ||
+          !Number.isFinite(lat) || !Number.isFinite(lon) ||
+          lat < -90 || lat > 90 || lon < -180 || lon > 180)
+        throw Error("Enter valid latitude (−90 to 90) and longitude (−180 to 180).");
+      const label = $("locationLabel").value.trim();
+      return `https://maps.google.com/?q=${lat},${lon}` +
+        (label ? `(${encodeURIComponent(label)})` : "");
+    }
+
+    case "event": {
+      const title = $("eventTitle").value.trim();
+      const start = $("eventStart").value, end = $("eventEnd").value;
+      if (!title || !start || !end) throw Error("Enter an event title, start, and end.");
+      const startDate = new Date(start), endDate = new Date(end);
+      if (Number.isNaN(+startDate) || Number.isNaN(+endDate) || endDate <= startDate)
+        throw Error("The event end must be after its start.");
+      const stamp = date => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+      const esc = value => String(value).replace(/\\/g, "\\\\").replace(/\n/g, "\\n")
+        .replace(/([,;])/g, "\\$1");
+      return [
+        "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//QR Generator//EN",
+        "BEGIN:VEVENT", `DTSTART:${stamp(startDate)}`, `DTEND:${stamp(endDate)}`,
+        `SUMMARY:${esc(title)}`,
+        $("eventLocation").value ? `LOCATION:${esc($("eventLocation").value)}` : "",
+        $("eventDescription").value ? `DESCRIPTION:${esc($("eventDescription").value)}` : "",
+        "END:VEVENT", "END:VCALENDAR"
+      ].filter(Boolean).join("\r\n");
+    }
+
+    case "social":
+      return normalizeURL($("socialUrl").value);
+
+    case "payment":
+      return normalizeURL($("paymentUrl").value);
+  }
+  throw Error("Select a supported QR content type.");
+}
+
+function contrastRatio(hex1, hex2) {
+  const lum = hex => {
+    const rgb = hex.match(/[a-f\d]{2}/gi).map(v => parseInt(v, 16) / 255)
+      .map(v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+    return .2126 * rgb[0] + .7152 * rgb[1] + .0722 * rgb[2];
+  };
+  const a = lum(hex1), b = lum(hex2);
+  return (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+}
+
+function drawModule(x, y, scale, style) {
+  if (style === "square") ctx.fillRect(x, y, scale, scale);
+  else if (style === "dots") {
+    ctx.beginPath();
+    ctx.arc(x + scale / 2, y + scale / 2, Math.max(1, scale * .39), 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    const r = Math.max(1, scale * .25);
+    ctx.beginPath();
+    ctx.roundRect(x, y, scale, scale, r);
+    ctx.fill();
+  }
+}
+
+function draw(text, correction = $("ecc").value, dark = $("dark").value,
+               light = $("light").value, outputSize = Number($("size").value)) {
+  if (typeof qrcode !== "function")
+    throw Error("QR library unavailable. Check your internet connection.");
+
+  const qr = qrcode(0, correction);
+  qr.addData(text);
+  qr.make();
+
+  const count = qr.getModuleCount(), quiet = 4, total = count + quiet * 2;
+  const scale = Math.max(1, Math.floor(outputSize / total));
+  const size = total * scale;
+  canvas.width = canvas.height = size;
+  ctx.clearRect(0, 0, size, size);
+
+  if (!$("transparent").checked) {
+    ctx.fillStyle = light;
+    ctx.fillRect(0, 0, size, size);
+  }
+  ctx.fillStyle = dark;
+
+  const style = $("style").value;
+  for (let y = 0; y < count; y++) {
+    for (let x = 0; x < count; x++) {
+      if (qr.isDark(y, x))
+        drawModule((x + quiet) * scale, (y + quiet) * scale, scale, style);
+    }
+  }
+
+  if (logoImage) {
+    const logoSize = Math.floor(size * .18);
+    const x = Math.floor((size - logoSize) / 2);
+    const y = Math.floor((size - logoSize) / 2);
+    ctx.fillStyle = light;
+    ctx.fillRect(x - 5, y - 5, logoSize + 10, logoSize + 10);
+    ctx.drawImage(logoImage, x, y, logoSize, logoSize);
+  }
+
+  currentText = text;
+  currentQR = qr;
+  $("captionPreview").textContent = $("caption").value.trim();
+  ["png", "jpg", "svg", "pdf", "copy", "share"].forEach(id => $(id).disabled = false);
+
+  if (logoImage && $("ecc").value !== "H") {
+    $("checkResult").textContent = "Logo detected: High error correction is recommended. Test the printed QR code before use.";
+  }
+  checkScannability();
+  return qr;
+}
+
+function checkScannability() {
+  const ratio = contrastRatio($("dark").value, $("light").value);
+  const messages = [];
+  if (ratio < 4.5) messages.push(`Low color contrast (${ratio.toFixed(1)}:1). Use a dark QR color on a light background.`);
+  else messages.push(`Color contrast looks good (${ratio.toFixed(1)}:1).`);
+  if ($("style").value !== "square") messages.push("Non-square styling can reduce scan reliability; test with multiple devices.");
+  if (logoImage) messages.push("A logo can obscure data. Keep it small and test the code.");
+  if (currentText.length > 500) messages.push("This QR contains a lot of data and may be dense; a short URL is more reliable.");
+  $("checkResult").textContent = messages.join(" ");
+}
+
+function safeName(name) {
+  return (name || "qrcode").replace(/[\\/:*?"<>|]/g, "_").slice(0, 100);
+}
+
+function getFilename(text) {
+  const custom = $("filename").value.trim();
+  if (custom) return safeName(custom);
+  if (typeSelect.value === "url" || typeSelect.value === "social" || typeSelect.value === "payment") {
+    try { return safeName(new URL(text).hostname.replace(/^www\./i, "")); } catch {}
+  }
+  return typeSelect.value + "-qrcode";
+}
+
+function download(blob, filename) {
+  const link = document.createElement("a");
+  const objectUrl = URL.createObjectURL(blob);
+  link.href = objectUrl;
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+}
+
+function canvasBlob(type, quality) {
+  return new Promise(resolve => canvas.toBlob(resolve, type, quality));
+}
+
+function svgString(qr, dark = $("dark").value, light = $("light").value) {
+  const svg = qr.createSvgTag(4, 0);
+  return svg.replace(/<path /, `<path fill="${dark}" `)
+    .replace(/<svg /, `<svg style="background:${$("transparent").checked ? "transparent" : light}" `);
+}
+
+function saveHistory(text, filename) {
+  try {
+    const history = JSON.parse(localStorage.qrHistory || "[]");
+    const next = [{ text, filename, type: typeSelect.value, time: Date.now() },
+      ...history.filter(item => item.text !== text)].slice(0, 8);
+    localStorage.qrHistory = JSON.stringify(next);
+    renderHistory();
+  } catch {}
+}
+
+function renderHistory() {
+  let items = [];
+  try { items = JSON.parse(localStorage.qrHistory || "[]"); } catch {}
+  const list = $("history");
+  list.replaceChildren();
+  if (!items.length) {
+    const li = document.createElement("li");
+    li.textContent = "No recent codes.";
+    list.append(li);
+    return;
+  }
+
+  items.forEach((item, index) => {
+    const li = document.createElement("li");
+    const restore = document.createElement("button");
+    restore.type = "button";
+    restore.textContent = item.filename;
+    restore.title = item.text;
+    restore.addEventListener("click", () => {
+      try {
+        $("filename").value = item.filename;
+        draw(item.text);
+        currentFilename = item.filename;
+        setStatus("Restored recent QR code.", "valid");
+      } catch (error) { setStatus(error.message, "error"); }
+    });
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "Delete";
+    remove.setAttribute("aria-label", `Delete ${item.filename} from recent codes`);
+    remove.addEventListener("click", () => {
+      const history = JSON.parse(localStorage.qrHistory || "[]");
+      history.splice(index, 1);
+      localStorage.qrHistory = JSON.stringify(history);
+      renderHistory();
+    });
+    li.append(restore, remove);
+    list.append(li);
+  });
+}
+
+function getPresets() {
+  try { return JSON.parse(localStorage.qrPresets || "{}"); } catch { return {}; }
+}
+
+function renderPresets() {
+  const select = $("presetSelect");
+  const selected = select.value;
+  select.replaceChildren(new Option("Choose a preset", ""));
+  Object.keys(getPresets()).forEach(name => select.add(new Option(name, name)));
+  if (getPresets()[selected]) select.value = selected;
+}
+
+function presetData() {
+  return {
+    dark: $("dark").value, light: $("light").value,
+    style: $("style").value, ecc: $("ecc").value,
+    size: $("size").value, caption: $("caption").value,
+    transparent: $("transparent").checked,
+    logoData: $("logoPreview").src.startsWith("data:") ? $("logoPreview").src : ""
+  };
+}
+
+async function loadLogoData(data) {
+  if (!data) {
+    logoImage = null;
+    $("logoPreview").hidden = true;
+    $("removeLogo").hidden = true;
+    return;
+  }
+  const image = new Image();
+  await new Promise((resolve, reject) => {
+    image.onload = resolve;
+    image.onerror = () => reject(Error("Could not load preset logo."));
+    image.src = data;
+  });
+  logoImage = image;
+  $("logoPreview").src = data;
+  $("logoPreview").hidden = false;
+  $("removeLogo").hidden = false;
+}
+
+typeSelect.addEventListener("change", () => {
+  document.querySelectorAll("[data-panel]").forEach(panel => {
+    panel.hidden = panel.dataset.panel !== typeSelect.value;
+  });
+});
+
+form.addEventListener("submit", event => {
+  event.preventDefault();
+  try {
+    const text = getContent();
+    draw(text);
+    currentFilename = getFilename(text);
+    saveHistory(text, currentFilename);
+    setStatus("QR code generated successfully.", "valid");
+  } catch (error) {
+    currentText = "";
+    ["png", "jpg", "svg", "pdf", "copy", "share"].forEach(id => $(id).disabled = true);
+    setStatus(error.message || "Could not generate QR code.", "error");
+  }
+});
+
+$("png").addEventListener("click", async () => {
+  if (!currentText) return;
+  const blob = await canvasBlob("image/png");
+  if (blob) download(blob, currentFilename + ".png");
+});
+
+$("jpg").addEventListener("click", async () => {
+  if (!currentText) return;
+  const oldTransparent = $("transparent").checked;
+  if (oldTransparent) {
+    $("transparent").checked = false;
+    draw(currentText);
+  }
+  const blob = await canvasBlob("image/jpeg", .95);
+  if (blob) download(blob, currentFilename + ".jpg");
+  if (oldTransparent) {
+    $("transparent").checked = true;
+    draw(currentText);
+  }
+});
+
+$("svg").addEventListener("click", () => {
+  if (!currentText) return;
+  try {
+    const qr = qrcode(0, $("ecc").value);
+    qr.addData(currentText);
+    qr.make();
+    download(new Blob([svgString(qr)], { type: "image/svg+xml" }), currentFilename + ".svg");
+  } catch (error) { setStatus(error.message, "error"); }
+});
+
+$("pdf").addEventListener("click", async () => {
+  if (!currentText) return;
+  if (!window.jspdf?.jsPDF) {
+    setStatus("PDF library unavailable. Check your internet connection.", "error");
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  const data = canvas.toDataURL("image/png");
+  pdf.addImage(data, "PNG", 55, 35, 100, 100);
+  const caption = $("caption").value.trim();
+  if (caption) pdf.text(caption, 105, 145, { align: "center", maxWidth: 160 });
+  pdf.save(currentFilename + ".pdf");
+});
+
+$("copy").addEventListener("click", async () => {
+  if (!currentText) return;
+  try {
+    const blob = await canvasBlob("image/png");
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+    setStatus("QR image copied to clipboard.", "valid");
+  } catch {
+    setStatus("Image clipboard is unavailable in this browser or page context.", "error");
+  }
+});
+
+$("share").addEventListener("click", async () => {
+  if (!currentText) return;
+  try {
+    const blob = await canvasBlob("image/png");
+    const file = new File([blob], currentFilename + ".png", { type: "image/png" });
+    if (navigator.canShare?.({ files: [file] }))
+      await navigator.share({ title: "QR code", files: [file] });
+    else if (navigator.share)
+      await navigator.share({ title: "QR code", text: currentText });
+    else setStatus("Sharing is not supported by this browser.", "error");
+  } catch (error) {
+    if (error.name !== "AbortError") setStatus("Could not share this QR code.", "error");
+  }
+});
+
+$("print").addEventListener("click", () => window.print());
+
+$("clearHistory").addEventListener("click", () => {
+  localStorage.removeItem("qrHistory");
+  renderHistory();
+  setStatus("Recent codes cleared.");
+});
+
+$("logoFile").addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    setStatus("Choose a logo smaller than 2 MB.", "error");
+    event.target.value = "";
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const image = new Image();
+    image.onload = () => {
+      logoImage = image;
+      $("logoPreview").src = reader.result;
+      $("logoPreview").hidden = false;
+      $("removeLogo").hidden = false;
+      if (currentText) draw(currentText);
+      setStatus("Logo added. Use high error correction and test the QR code.", "valid");
+    };
+    image.onerror = () => setStatus("Could not read that logo image.", "error");
+    image.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+$("removeLogo").addEventListener("click", () => {
+  logoImage = null;
+  $("logoFile").value = "";
+  $("logoPreview").removeAttribute("src");
+  $("logoPreview").hidden = true;
+  $("removeLogo").hidden = true;
+  if (currentText) draw(currentText);
+});
+
+$("caption").addEventListener("input", () => {
+  $("captionPreview").textContent = $("caption").value.trim();
+});
+
+["dark", "light", "style", "ecc", "size", "transparent"].forEach(id => {
+  $(id).addEventListener("change", () => {
+    if (currentText) {
+      try { draw(currentText); } catch (error) { setStatus(error.message, "error"); }
+    } else checkScannability();
+  });
+});
+
+$("bulkButton").addEventListener("click", async () => {
+  if (typeof JSZip !== "function") {
+    setStatus("ZIP library unavailable. Check your internet connection.", "error");
+    return;
+  }
+
+  let lines = $("bulk").value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const csv = $("csvFile").files[0];
+  if (csv) {
+    const text = await csv.text();
+    lines = text.split(/\r?\n/).map(line => line.split(",")[0].trim()
+      .replace(/^["']|["']$/g, "")).filter(Boolean);
+  }
+  if (!lines.length) {
+    setStatus("Enter at least one URL or upload a CSV file.", "error");
+    return;
+  }
+
+  try {
+    const zip = new JSZip(), used = new Set();
+    for (let i = 0; i < lines.length; i++) {
+      const normalized = normalizeURL(lines[i]);
+      const qr = qrcode(0, $("ecc").value);
+      qr.addData(normalized);
+      qr.make();
+      let name = safeName(new URL(normalized).hostname.replace(/^www\./i, "")) || `qr-${i + 1}`;
+      if (used.has(name)) name = `${name}-${i + 1}`;
+      used.add(name);
+      zip.file(name + ".svg", svgString(qr));
+    }
+    download(await zip.generateAsync({ type: "blob" }), "qr-codes.zip");
+    setStatus(`Created ${lines.length} QR code(s) in a ZIP file.`, "valid");
+  } catch (error) {
+    setStatus(error.message || "Bulk generation failed.", "error");
+  }
+});
+
+$("savePreset").addEventListener("click", () => {
+  const name = $("presetName").value.trim();
+  if (!name) { setStatus("Enter a name for the preset.", "error"); return; }
+  try {
+    const presets = getPresets();
+    presets[name] = presetData();
+    localStorage.qrPresets = JSON.stringify(presets);
+    renderPresets();
+    $("presetSelect").value = name;
+    setStatus("Preset saved.", "valid");
+  } catch { setStatus("Could not save preset. The logo may be too large for browser storage.", "error"); }
+});
+
+$("loadPreset").addEventListener("click", async () => {
+  const preset = getPresets()[$("presetSelect").value];
+  if (!preset) { setStatus("Choose a saved preset.", "error"); return; }
+  $("dark").value = preset.dark;
+  $("light").value = preset.light;
+  $("style").value = preset.style;
+  $("ecc").value = preset.ecc;
+  $("size").value = preset.size;
+  $("caption").value = preset.caption || "";
+  $("captionPreview").textContent = preset.caption || "";
+  $("transparent").checked = !!preset.transparent;
+  try {
+    await loadLogoData(preset.logoData);
+    if (currentText) draw(currentText);
+    else checkScannability();
+    setStatus("Preset loaded.", "valid");
+  } catch (error) { setStatus(error.message, "error"); }
+});
+
+$("deletePreset").addEventListener("click", () => {
+  const name = $("presetSelect").value;
+  if (!name) { setStatus("Choose a preset to delete.", "error"); return; }
+  const presets = getPresets();
+  delete presets[name];
+  localStorage.qrPresets = JSON.stringify(presets);
+  renderPresets();
+  setStatus("Preset deleted.");
+});
+
+renderHistory();
+renderPresets();
+checkScannability();
+</script>
+</body>
+</html>
